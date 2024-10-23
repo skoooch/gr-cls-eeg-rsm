@@ -15,7 +15,7 @@ def apply_bandpass_filter(data, lowcut, highcut, fs, order=4):
     y = filtfilt(b, a, data, axis=1)  # Filter along the time dimension
     return y
 
-def get_data(task):
+def get_data(task, avr=False):
     lowcut = 0.2  # Low cutoff frequency (Hz)
     highcut = 115  # High cutoff frequency (Hz)
     fs = 512  # Sampling frequency (Hz), adapt this to your actual EEG data sampling rate
@@ -36,14 +36,16 @@ def get_data(task):
             num_new_trials = num_trials // 10
             
             # Initialize the array to hold the averaged data
-            averaged_trials = np.zeros((num_new_trials, num_timepoints, num_channels))
             
-            # Average every 4 trials
-            for k in range(num_new_trials):
-                start_idx = k * 4
-                end_idx = start_idx + 4
-                averaged_trials[k, :, :] = np.mean(data[start_idx:end_idx, :, :], axis=0)
-            
+            if not avr:
+                averaged_trials = np.zeros((num_new_trials, num_timepoints, num_channels))
+                # Average every 4 trials
+                for k in range(num_new_trials):
+                    start_idx = k * 4
+                    end_idx = start_idx + 4
+                    averaged_trials[k, :, :] = np.mean(data[start_idx:end_idx, :, :], axis=0)
+            else:
+                averaged_trials = np.mean(data, axis=0)[None, :, :]
             # Append data
             all_data[category].append(averaged_trials)
 
